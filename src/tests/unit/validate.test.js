@@ -10,7 +10,6 @@ describe('Middleware Валідації: validateAuth', () => {
   });
 
   it('Повинен пропускати далі, якщо email та пароль валідні', () => {
-    // 1. Готуємо дані (ніби юзер ввів їх на сайті)
     req.body = { email: 'yurochka@test.com', password: 'supersecret123' };
     validateAuth(req, res, next);
     expect(next).toHaveBeenCalled();
