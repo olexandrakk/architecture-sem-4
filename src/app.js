@@ -1,6 +1,6 @@
 const express = require('express');
 const bookingRoutes = require('./routes/bookingRoutes');
-const errorHandler = require('./middleware/errorHandler');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 

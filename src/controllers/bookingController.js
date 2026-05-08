@@ -56,4 +56,7 @@ const getUserBookings = async (req, res, next) => {
   }
 };
 
-module.exports = { createBooking, getUserBookings };
+module.exports = {
+  createBooking,
+  getUserBookings
+};

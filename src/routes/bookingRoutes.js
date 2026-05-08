@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
+
+const { authenticateToken } = require('../middlewares/auth');
 const bookingController = require('../controllers/bookingController');
-
 router.post('/', bookingController.createBooking);
-
-router.get('/user/:userId', bookingController.getUserBookings);
+router.get('/user/:userId', authenticateToken, bookingController.getUserBookings);
 
 module.exports = router;
