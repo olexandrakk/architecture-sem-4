@@ -26,5 +26,5 @@ CREATE TABLE IF NOT EXISTS bookings (
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     seat_number INT NOT NULL CHECK (seat_number > 0 AND seat_number <= 100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(session_id, seat_number) -- Інваріант: одне місце на один сеанс
+    UNIQUE(session_id, seat_number)
 );

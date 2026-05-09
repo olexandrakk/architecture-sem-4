@@ -1,11 +1,13 @@
 const express = require('express');
 const bookingRoutes = require('./routes/bookingRoutes');
+const authRoutes = require('./routes/authRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
 app.use(express.json());
 
+app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 
 app.get('/health', (req, res) => {
