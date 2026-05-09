@@ -1,6 +1,6 @@
 const express = require('express');
-const bookingRoutes = require('./presentation/controllers/routes/bookingRoutes');
-const authRoutes = require('./presentation/controllers/routes/authRoutes');
+const bookingRoutes = require('./presentation/routes/bookingRoutes');
+const authRoutes = require('./presentation/routes/authRoutes');
 const errorHandler = require('./presentation/middlewares/errorHandler');
 
 const app = express();

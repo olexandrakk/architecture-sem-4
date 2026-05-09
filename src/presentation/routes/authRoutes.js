@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('../authController');
-const { validateAuth } = require('../../../middlewares/validate'); // ДОДАНО ІМПОРТ
+const authController = require('../controllers/authController');
 
-router.post('/register', validateAuth, authController.register);
-router.post('/login', validateAuth, authController.login);
+router.post('/register', authController.register);
+router.post('/login', authController.login);
 
 module.exports = router;

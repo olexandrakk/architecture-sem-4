@@ -1,62 +1,50 @@
-const pool = require('../../config/db');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const PostgresUserRepository = require('../../infrastructure/repositories/PostgresUserRepository');
+const UserFactory = require('../../domain/factories/UserFactory');
+const RegisterUserUseCase = require('../../application/use-cases/RegisterUserUseCase');
+const LoginUserUseCase = require('../../application/use-cases/LoginUserUseCase');
+const DomainError = require('../../domain/errors/DomainError');
 
-const register = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+const userRepository = new PostgresUserRepository();
+const userFactory = new UserFactory(userRepository);
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+const registerUseCase = new RegisterUserUseCase(userFactory, userRepository);
+const loginUseCase = new LoginUserUseCase(userRepository);
+
+const authController = {
+  register: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const result = await registerUseCase.execute(email, password);
+      
+      res.status(201).json(result);
+    } catch (error) {
+      if (error instanceof DomainError) {
+        if (error.message === 'User with this email already exists') {
+          return res.status(409).json({ error: error.message });
+        }
+        return res.status(400).json({ error: error.message });
+      }
+      
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
+  },
 
-    const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (existingUser.rows.length > 0) {
-      return res.status(409).json({ error: 'User with this email already exists' });
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const result = await loginUseCase.execute(email, password);
+      
+      res.status(200).json(result);
+    } catch (error) {
+      if (error instanceof DomainError) {
+        return res.status(401).json({ error: error.message });
+      }
+      
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
-
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
-    // Збереження в БД
-    const newUser = await pool.query(
-      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, role',
-      [email, passwordHash]
-    );
-
-    res.status(201).json(newUser.rows[0]);
-  } catch (err) {
-    next(err);
   }
 };
 
-const login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-
-    const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    const user = userResult.rows[0];
-
-    const validPassword = await bcrypt.compare(password, user.password_hash);
-    if (!validPassword) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    const secretKey = process.env.JWT_SECRET || 'secret-key-fallback';
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      secretKey,
-      { expiresIn: '2h' }
-    );
-
-    res.status(200).json({ token, user: { id: user.id, email: user.email, role: user.role } });
-  } catch (err) {
-    next(err);
-  }
-};
-
-module.exports = { register, login };
+module.exports = authController;

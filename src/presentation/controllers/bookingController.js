@@ -1,5 +1,5 @@
-const pool = require('../config/db');
-const { validateBookingData } = require('../utils/validators');
+const pool = require('../../infrastructure/config/db');
+const { validateBookingData } = require('../../utils/validators');
 
 const createBooking = async (req, res, next) => {
   try {
