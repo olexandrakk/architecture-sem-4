@@ -1,11 +1,10 @@
 const express = require('express');
 const bookingRoutes = require('./presentation/routes/bookingRoutes');
-const authRoutes = require('./presentation/routes/authRoutes');
 const errorHandler = require('./presentation/middlewares/errorHandler');
-
 const app = express();
 
 app.use(express.json());
+const authRoutes = require('./presentation/routes/authRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
