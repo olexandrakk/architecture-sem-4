@@ -1,4 +1,4 @@
-const { validateAuth } = require('../../middlewares/validate');
+const { validateAuth } = require('../../presentation/middlewares/validate');
 const httpMocks = require('node-mocks-http');
 
 describe('Middleware Валідації: validateAuth', () => {

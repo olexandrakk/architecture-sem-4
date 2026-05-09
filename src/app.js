@@ -1,7 +1,7 @@
 const express = require('express');
-const bookingRoutes = require('./routes/bookingRoutes');
-const authRoutes = require('./routes/authRoutes');
-const errorHandler = require('./middlewares/errorHandler');
+const bookingRoutes = require('./presentation/controllers/routes/bookingRoutes');
+const authRoutes = require('./presentation/controllers/routes/authRoutes');
+const errorHandler = require('./presentation/middlewares/errorHandler');
 
 const app = express();
 
