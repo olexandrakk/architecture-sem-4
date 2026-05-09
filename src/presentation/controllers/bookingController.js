@@ -1,10 +1,14 @@
+const PostgresBookingRepository = require('../../infrastructure/repositories/PostgresBookingRepository');
+const CreateBookingUseCase = require('../../application/use-cases/CreateBookingUseCase');
+const DomainError = require('../../domain/errors/DomainError');
 const pool = require('../../infrastructure/config/db');
-const { validateBookingData } = require('../../utils/validators');
+
+const bookingRepository = new PostgresBookingRepository();
+const createBookingUseCase = new CreateBookingUseCase(bookingRepository);
 
 const createBooking = async (req, res, next) => {
   try {
     const { session_id, seat_number } = req.body;
-    
     const user_id = req.user ? req.user.id : req.body.user_id;
 
     if (!user_id) {
@@ -15,27 +19,23 @@ const createBooking = async (req, res, next) => {
     if (sessionResult.rows.length === 0) {
       return res.status(404).json({ error: 'Session not found' });
     }
+    const sessionStartTime = sessionResult.rows[0].start_time;
 
-    const errors = validateBookingData({ seat_number }, sessionResult.rows[0].start_time);
-    if (errors.length > 0) {
-      return res.status(400).json({ error: 'Validation failed', details: errors });
-    }
-
-    const existingBooking = await pool.query(
-      'SELECT id FROM bookings WHERE session_id = $1 AND seat_number = $2',
-      [session_id, seat_number]
-    );
-    if (existingBooking.rows.length > 0) {
-      return res.status(409).json({ error: 'This seat is already booked for this session' });
-    }
-
-    const newBooking = await pool.query(
-      'INSERT INTO bookings (session_id, user_id, seat_number) VALUES ($1, $2, $3) RETURNING *',
-      [session_id, user_id, seat_number]
+    const newBooking = await createBookingUseCase.execute(
+      session_id, 
+      user_id, 
+      seat_number, 
+      sessionStartTime
     );
 
-    res.status(201).json(newBooking.rows[0]);
+    res.status(201).json(newBooking);
   } catch (err) {
+    if (err instanceof DomainError) {
+      if (err.message.includes('already booked')) {
+        return res.status(409).json({ error: err.message });
+      }
+      return res.status(400).json({ error: err.message });
+    }
     next(err);
   }
 };
@@ -43,14 +43,8 @@ const createBooking = async (req, res, next) => {
 const getUserBookings = async (req, res, next) => {
   try {
     const user_id = req.user ? req.user.id : req.params.userId;
-    const bookings = await pool.query(
-      'SELECT b.*, s.start_time, m.title FROM bookings b ' +
-      'JOIN sessions s ON b.session_id = s.id ' +
-      'JOIN movies m ON s.movie_id = m.id ' +
-      'WHERE b.user_id = $1',
-      [user_id]
-    );
-    res.status(200).json(bookings.rows);
+    const bookings = await bookingRepository.findByUserId(user_id);
+    res.status(200).json(bookings);
   } catch (err) {
     next(err);
   }

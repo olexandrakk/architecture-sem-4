@@ -1,6 +1,6 @@
 const BookingRepositoryInterface = require('../../domain/repositories/BookingRepositoryInterface');
 const Booking = require('../../domain/entities/Booking');
-const pool = require('../../config/db');
+const pool = require('../../infrastructure/config/db');
 
 class PostgresBookingRepository extends BookingRepositoryInterface {
   async isSeatTaken(sessionId, seatNumber) {
