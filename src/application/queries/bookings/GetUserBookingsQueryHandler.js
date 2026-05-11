@@ -1,4 +1,4 @@
-const pool = require('../../infrastructure/config/db'); 
+const pool = require('../../../infrastructure/config/db'); 
 
 class GetUserBookingsQueryHandler {
   async execute(query) {

@@ -1,8 +1,8 @@
 const PostgresBookingRepository = require('../../infrastructure/repositories/PostgresBookingRepository');
-const CreateBookingCommand = require('../../application/commands/CreateBookingCommand');
+const CreateBookingCommand = require('../../application/commands/bookings/CreateBookingCommand');
 const CreateBookingCommandHandler = require('../../application/commands/CreateBookingCommandHandler');
-const GetUserBookingsQuery = require('../../application/queries/GetUserBookingsQuery');
-const GetUserBookingsQueryHandler = require('../../application/queries/GetUserBookingsQueryHandler');
+const GetUserBookingsQuery = require('../../application/queries/bookings/GetUserBookingsQuery');
+const GetUserBookingsQueryHandler = require('../../application/queries/bookings/GetUserBookingsQueryHandler');
 const DomainError = require('../../domain/errors/DomainError');
 const pool = require('../../infrastructure/config/db');
 

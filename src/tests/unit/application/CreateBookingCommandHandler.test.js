@@ -1,5 +1,5 @@
 const CreateBookingCommandHandler = require('../../../application/commands/CreateBookingCommandHandler');
-const CreateBookingCommand = require('../../../application/commands/CreateBookingCommand');
+const CreateBookingCommand = require('../../../application/commands/bookings/CreateBookingCommand');
 const DomainError = require('../../../domain/errors/DomainError');
 
 const mockRepository = {
