@@ -1,4 +1,4 @@
-const BookingFactory = require('../../domain/factories/BookingFactory');
+const BookingFactory = require('../../../domain/factories/BookingFactory');
 
 class CreateBookingCommandHandler {
   constructor(bookingRepository, notificationService) {
