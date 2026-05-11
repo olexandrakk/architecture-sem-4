@@ -18,6 +18,7 @@ class LoginUserQueryHandler {
       throw new Error('Invalid email or password');
     }
 
+    // 3. Формуємо корисне навантаження та генеруємо токен
     const payload = {
       user: {
         id: user.id
@@ -30,6 +31,7 @@ class LoginUserQueryHandler {
       { expiresIn: '1h' } // Токен живе 1 годину
     );
 
+    // CQS правило: Query повертає плоский результат (Read Model)
     return { token };
   }
 }
