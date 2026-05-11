@@ -12,7 +12,7 @@ class LoginUserQueryHandler {
     if (!user) {
       throw new Error('Invalid email or password'); 
     }
-    const isMatch = await bcrypt.compare(query.password, user.password);
+    const isMatch = await bcrypt.compare(query.password, user.passwordHash);
     if (!isMatch) {
       throw new Error('Invalid email or password');
     }
