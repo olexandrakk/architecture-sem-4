@@ -2,6 +2,7 @@ const express = require('express');
 const bookingRoutes = require('./presentation/routes/bookingRoutes');
 const errorHandler = require('./presentation/middlewares/errorHandler');
 const app = express();
+require('./infrastructure/events/WelcomeEmailSubscriber').init();
 
 app.use(express.json());
 const authRoutes = require('./presentation/routes/authRoutes');
