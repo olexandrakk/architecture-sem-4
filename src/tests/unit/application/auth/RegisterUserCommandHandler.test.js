@@ -1,6 +1,6 @@
-const RegisterUserCommand = require('../../../../../application/commands/auth/RegisterUserCommand');
-const RegisterUserCommandHandler = require('../../../../../application/commands/auth/RegisterUserCommandHandler');
-const DomainError = require('../../../../../domain/errors/DomainError');
+const RegisterUserCommand = require('../../../../application/commands/auth/RegisterUserCommand');
+const RegisterUserCommandHandler = require('../../../../application/commands/auth/RegisterUserCommandHandler');
+const DomainError = require('../../../../domain/errors/DomainError');
 const mockUserRepository = {
   save: jest.fn()
 };
