@@ -1,23 +1,20 @@
 const express = require('express');
-
-const bookingRoutes = require('./modules/core/presentation/routes/bookingRoutes');
-const authRoutes = require('./modules/core/presentation/routes/authRoutes');
-const errorHandler = require('./modules/core/presentation/middlewares/errorHandler');
-
 const app = express();
-
-require('./infrastructure/events/WelcomeEmailSubscriber').init();
-require('./infrastructure/events/BookingSubscribers');
 
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/bookings', bookingRoutes);
+const coreModule = require('./modules/core');
+const analyticsModule = require('./modules/analytics');
 
+require('./infrastructure/events/WelcomeEmailSubscriber').init();
+require('./infrastructure/events/BookingSubscribers');
+app.use('/api/auth', coreModule.routes.auth);
+app.use('/api/bookings', coreModule.routes.bookings);
+app.use('/api/analytics', analyticsModule.routes.analytics);
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Cinema API is running' });
 });
 
-app.use(errorHandler);
+app.use(coreModule.middlewares.errorHandler);
 
 module.exports = app;

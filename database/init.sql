@@ -28,3 +28,10 @@ CREATE TABLE IF NOT EXISTS bookings (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(session_id, seat_number)
 );
+
+CREATE TABLE analytics_sales (
+    id SERIAL PRIMARY KEY,
+    movie_title VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    sold_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
