@@ -1,50 +1,57 @@
 const PostgresUserRepository = require('../../infrastructure/repositories/PostgresUserRepository');
 const UserFactory = require('../../domain/factories/UserFactory');
-const RegisterUserUseCase = require('../../application/use-cases/RegisterUserUseCase');
-const LoginUserUseCase = require('../../application/use-cases/LoginUserUseCase');
 const DomainError = require('../../domain/errors/DomainError');
+
+const RegisterUserCommand = require('../../application/commands/auth/RegisterUserCommand');
+const RegisterUserCommandHandler = require('../../application/commands/auth/RegisterUserCommandHandler');
+const LoginUserQuery = require('../../application/queries/auth/LoginUserQuery');
+const LoginUserQueryHandler = require('../../application/queries/auth/LoginUserQueryHandler');
 
 const userRepository = new PostgresUserRepository();
 const userFactory = new UserFactory(userRepository);
 
-const registerUseCase = new RegisterUserUseCase(userFactory, userRepository);
-const loginUseCase = new LoginUserUseCase(userRepository);
+const registerHandler = new RegisterUserCommandHandler(userRepository, userFactory);
+const loginHandler = new LoginUserQueryHandler(userRepository);
 
-const authController = {
-  register: async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const result = await registerUseCase.execute(email, password);
-      
-      res.status(201).json(result);
-    } catch (error) {
-      if (error instanceof DomainError) {
-        if (error.message === 'User with this email already exists') {
-          return res.status(409).json({ error: error.message });
-        }
-        return res.status(400).json({ error: error.message });
-      }
-      
-      console.error('Unexpected error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  },
+const register = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
 
-  login: async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const result = await loginUseCase.execute(email, password);
-      
-      res.status(200).json(result);
-    } catch (error) {
-      if (error instanceof DomainError) {
-        return res.status(401).json({ error: error.message });
-      }
-      
-      console.error('Unexpected error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    const command = new RegisterUserCommand({ email, password });
+
+    const result = await registerHandler.execute(command);
+
+    res.status(201).json({ message: 'User registered successfully', userId: result.id });
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return res.status(400).json({ error: err.message });
     }
+    // Перехоплення помилки унікальності (якщо БД кидає помилку)
+    if (err.message.includes('already exists') || err.message.includes('duplicate key')) {
+      return res.status(409).json({ error: 'User with this email already exists' });
+    }
+    next(err);
   }
 };
 
-module.exports = authController;
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    const query = new LoginUserQuery({ email, password });
+
+    const result = await loginHandler.execute(query);
+
+    res.status(200).json(result);
+  } catch (err) {
+    if (err.message === 'Invalid email or password') {
+      return res.status(401).json({ error: err.message });
+    }
+    next(err);
+  }
+};
+
+module.exports = {
+  register,
+  login
+};
