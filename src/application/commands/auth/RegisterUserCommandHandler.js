@@ -1,24 +1,28 @@
 const bcrypt = require('bcrypt');
-const UserFactory = require('../../../domain/factories/UserFactory');
-const WelcomeEmailService = require('../../../infrastructure/services/WelcomeEmailService');
+const UserFactory = require('../../domain/factories/UserFactory');
+const eventBus = require('../../infrastructure/events/EventBus');
+const UserRegisteredEvent = require('../../domain/events/UserRegisteredEvent');
 
 class RegisterUserCommandHandler {
   constructor(userRepository) {
     this.userRepository = userRepository;
     this.userFactory = new UserFactory(userRepository);
-    this.emailService = new WelcomeEmailService();
   }
 
   async execute(command) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(command.password, saltRounds);
+    
     const userEntity = await this.userFactory.createNewUser(
       command.email,
       hashedPassword,
       command.role || 'user' 
     );
+
     const savedUser = await this.userRepository.save(userEntity);
-    await this.emailService.sendWelcomeEmail(command.email);
+    const event = new UserRegisteredEvent(savedUser.id, command.email);
+    eventBus.emit('UserRegisteredEvent', event);
+    
     return savedUser.id;
   }
 }

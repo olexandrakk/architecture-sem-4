@@ -12,13 +12,10 @@ class LoginUserQueryHandler {
     if (!user) {
       throw new Error('Invalid email or password'); 
     }
-
     const isMatch = await bcrypt.compare(query.password, user.password);
     if (!isMatch) {
       throw new Error('Invalid email or password');
     }
-
-    // 3. Формуємо корисне навантаження та генеруємо токен
     const payload = {
       user: {
         id: user.id
@@ -28,10 +25,8 @@ class LoginUserQueryHandler {
     const token = jwt.sign(
       payload,
       process.env.JWT_SECRET || 'super-secret-key-for-cinema-api',
-      { expiresIn: '1h' } // Токен живе 1 годину
+      { expiresIn: '1h' }
     );
-
-    // CQS правило: Query повертає плоский результат (Read Model)
     return { token };
   }
 }
