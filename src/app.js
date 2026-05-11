@@ -1,12 +1,15 @@
 const express = require('express');
-const bookingRoutes = require('./presentation/routes/bookingRoutes');
-const errorHandler = require('./presentation/middlewares/errorHandler');
+
+const bookingRoutes = require('./modules/core/presentation/routes/bookingRoutes');
+const authRoutes = require('./modules/core/presentation/routes/authRoutes');
+const errorHandler = require('./modules/core/presentation/middlewares/errorHandler');
+
 const app = express();
+
 require('./infrastructure/events/WelcomeEmailSubscriber').init();
-require('./infrastructure/events/BookingSubscribers')
+require('./infrastructure/events/BookingSubscribers');
 
 app.use(express.json());
-const authRoutes = require('./presentation/routes/authRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);

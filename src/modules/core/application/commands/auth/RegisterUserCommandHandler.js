@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const UserFactory = require('../../../domain/factories/UserFactory');
-const eventBus = require('../../../infrastructure/events/EventBus');
+const eventBus = require('../../../../../infrastructure/events/EventBus');
 const UserRegisteredEvent = require('../../../domain/events/UserRegisteredEvent');
 
 class RegisterUserCommandHandler {

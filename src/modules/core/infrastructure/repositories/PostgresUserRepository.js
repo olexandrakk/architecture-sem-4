@@ -1,6 +1,6 @@
 const UserRepositoryInterface = require('../../domain/repositories/UserRepositoryInterface');
 const User = require('../../domain/entities/User');
-const pool = require('../config/db');
+const pool = require('../../../../infrastructure/config/db');
 
 class PostgresUserRepository extends UserRepositoryInterface {
   async findByEmail(email) {

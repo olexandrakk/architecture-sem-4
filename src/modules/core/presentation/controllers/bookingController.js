@@ -4,7 +4,7 @@ const CreateBookingCommandHandler = require('../../application/commands/bookings
 const GetUserBookingsQuery = require('../../application/queries/bookings/GetUserBookingsQuery');
 const GetUserBookingsQueryHandler = require('../../application/queries/bookings/GetUserBookingsQueryHandler');
 const DomainError = require('../../domain/errors/DomainError');
-const pool = require('../../infrastructure/config/db');
+const pool = require('../../../../infrastructure/config/db');
 
 const bookingRepository = new PostgresBookingRepository();
 const createBookingHandler = new CreateBookingCommandHandler(bookingRepository);

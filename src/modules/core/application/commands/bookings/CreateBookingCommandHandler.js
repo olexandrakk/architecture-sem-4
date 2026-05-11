@@ -1,5 +1,5 @@
 const BookingFactory = require('../../../domain/factories/BookingFactory');
-const eventBus = require('../../../infrastructure/events/EventBus'); 
+const eventBus = require('../../../../../infrastructure/events/EventBus'); 
 
 class CreateBookingCommandHandler {
   constructor(bookingRepository) {
