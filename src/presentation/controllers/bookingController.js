@@ -5,9 +5,11 @@ const GetUserBookingsQuery = require('../../application/queries/bookings/GetUser
 const GetUserBookingsQueryHandler = require('../../application/queries/bookings/GetUserBookingsQueryHandler');
 const DomainError = require('../../domain/errors/DomainError');
 const pool = require('../../infrastructure/config/db');
+const NotificationService = require('../../infrastructure/services/NotificationService');
 
 const bookingRepository = new PostgresBookingRepository();
-const createBookingHandler = new CreateBookingCommandHandler(bookingRepository);
+const notificationService = new NotificationService();
+const createBookingHandler = new CreateBookingCommandHandler(bookingRepository, notificationService);
 const getUserBookingsHandler = new GetUserBookingsQueryHandler();
 
 const createBooking = async (req, res, next) => {
