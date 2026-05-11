@@ -8,6 +8,7 @@ const analyticsModule = require('./modules/analytics');
 
 require('./infrastructure/events/WelcomeEmailSubscriber').init();
 require('./infrastructure/events/BookingSubscribers');
+require('./modules/analytics/infrastructure/events/AnalyticsSubscriber').init();
 app.use('/api/auth', coreModule.routes.auth);
 app.use('/api/bookings', coreModule.routes.bookings);
 app.use('/api/analytics', analyticsModule.routes.analytics);
