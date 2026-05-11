@@ -1,10 +1,14 @@
 const PostgresBookingRepository = require('../../infrastructure/repositories/PostgresBookingRepository');
-const CreateBookingUseCase = require('../../application/use-cases/CreateBookingUseCase');
+const CreateBookingCommand = require('../../application/commands/CreateBookingCommand');
+const CreateBookingCommandHandler = require('../../application/commands/CreateBookingCommandHandler');
+const GetUserBookingsQuery = require('../../application/queries/GetUserBookingsQuery');
+const GetUserBookingsQueryHandler = require('../../application/queries/GetUserBookingsQueryHandler');
 const DomainError = require('../../domain/errors/DomainError');
 const pool = require('../../infrastructure/config/db');
 
 const bookingRepository = new PostgresBookingRepository();
-const createBookingUseCase = new CreateBookingUseCase(bookingRepository);
+const createBookingHandler = new CreateBookingCommandHandler(bookingRepository);
+const getUserBookingsHandler = new GetUserBookingsQueryHandler();
 
 const createBooking = async (req, res, next) => {
   try {
@@ -21,14 +25,19 @@ const createBooking = async (req, res, next) => {
     }
     const sessionStartTime = sessionResult.rows[0].start_time;
 
-    const newBooking = await createBookingUseCase.execute(
-      session_id, 
-      user_id, 
-      seat_number, 
-      sessionStartTime
-    );
+    const command = new CreateBookingCommand({
+      sessionId: session_id,
+      userId: user_id,
+      seatNumber: seat_number,
+      sessionStartTime: sessionStartTime
+    });
 
-    res.status(201).json(newBooking);
+    const bookingId = await createBookingHandler.execute(command);
+
+    res.status(201).json({ 
+      message: 'Booking created successfully', 
+      bookingId: bookingId 
+    });
   } catch (err) {
     if (err instanceof DomainError) {
       if (err.message.includes('already booked')) {
@@ -43,7 +52,11 @@ const createBooking = async (req, res, next) => {
 const getUserBookings = async (req, res, next) => {
   try {
     const user_id = req.user ? req.user.id : req.params.userId;
-    const bookings = await bookingRepository.findByUserId(user_id);
+
+    const query = new GetUserBookingsQuery({ userId: user_id });
+
+    const bookings = await getUserBookingsHandler.execute(query);
+
     res.status(200).json(bookings);
   } catch (err) {
     next(err);
