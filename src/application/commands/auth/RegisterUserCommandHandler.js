@@ -12,12 +12,12 @@ class RegisterUserCommandHandler {
   async execute(command) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(command.password, saltRounds);
-    const createNewUser = await this.userFactory.createUser(
+    const userEntity = await this.userFactory.createNewUser(
       command.email,
       hashedPassword,
       command.role || 'user' 
     );
-    const savedUser = await this.userRepository.save(createNewUser);
+    const savedUser = await this.userRepository.save(userEntity);
     await this.emailService.sendWelcomeEmail(command.email);
     return savedUser.id;
   }
