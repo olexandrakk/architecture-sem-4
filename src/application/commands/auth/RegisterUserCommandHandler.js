@@ -1,18 +1,25 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
+const UserFactory = require('../../../domain/factories/UserFactory');
+const WelcomeEmailService = require('../../../infrastructure/services/WelcomeEmailService');
 
 class RegisterUserCommandHandler {
-  constructor(userRepository, userFactory) {
+  constructor(userRepository) {
     this.userRepository = userRepository;
-    this.userFactory = userFactory;
+    this.userFactory = new UserFactory(userRepository);
+    this.emailService = new WelcomeEmailService();
   }
 
   async execute(command) {
-    const userEntity = await this.userFactory.createUser(command.email);
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(command.password, salt);
-    userEntity.password = hashedPassword;
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(command.password, saltRounds);
+    const userEntity = await this.userFactory.createUser(
+      command.email,
+      hashedPassword,
+      command.role || 'user' 
+    );
     const savedUser = await this.userRepository.save(userEntity);
-    return { id: savedUser.id }; 
+    await this.emailService.sendWelcomeEmail(command.email);
+    return savedUser.id;
   }
 }
 
