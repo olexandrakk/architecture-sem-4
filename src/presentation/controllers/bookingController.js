@@ -15,7 +15,7 @@ const getUserBookingsHandler = new GetUserBookingsQueryHandler();
 const createBooking = async (req, res, next) => {
   try {
     const { session_id, seat_number } = req.body;
-    const user_id = req.user ? req.user.id : req.body.user_id;
+    const user_id = req.user ? req.user.user.id : req.body.user_id;
 
     if (!user_id) {
       return res.status(401).json({ error: 'Unauthorized: User ID is missing' });
@@ -53,7 +53,7 @@ const createBooking = async (req, res, next) => {
 
 const getUserBookings = async (req, res, next) => {
   try {
-    const user_id = req.user ? req.user.id : req.params.userId;
+    const user_id = req.user ? req.user.user.id : req.params.userId;
 
     const query = new GetUserBookingsQuery({ userId: user_id });
 
